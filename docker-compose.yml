@@ -54,7 +54,7 @@ services:
     ports:
       - "5432:5432"
 
-  # 5. Yönetim Paneli (React) - BURASI DÜZELTİLDİ (Sola kaydırıldı)
+  # 5. Yönetim Paneli (React)
   frontend:
     build: ./frontend
     container_name: blueunix_frontend
@@ -65,8 +65,8 @@ services:
       - /app/node_modules
     depends_on:
       - backend
-  # 6. Wazuh Indexer (İsim Değişti)
-# 6. Wazuh Indexer
+
+  # 6. Wazuh Indexer (Sertifika uyumu için ismi demo.indexer)
   demo.indexer:
     image: wazuh/wazuh-indexer:4.7.2
     container_name: demo.indexer
@@ -85,9 +85,9 @@ services:
         soft: 65536
         hard: 65536
 
-  # 7. Wazuh Manager
+  # 7. Wazuh Manager (Özel Build - SSL Zorla Kapatıldı)
   wazuh.manager:
-    image: wazuh/wazuh-manager:4.7.2
+    build: ./backend/wazuh_manager  # <--- ÖNEMLİ: Hazır imaj yerine kendi build'imiz
     container_name: wazuh.manager
     ports:
       - "1514:1514"
@@ -96,12 +96,11 @@ services:
       - INDEXER_URL=https://demo.indexer:9200
       - INDEXER_USERNAME=admin
       - INDEXER_PASSWORD=admin
-      - INDEXER_SSL_VERIFICATION_MODE=none  # <--- KRİTİK AYAR: none
+      - INDEXER_SSL_VERIFICATION_MODE=none
     depends_on:
       - demo.indexer
     volumes:
       - wazuh-manager-data:/var/ossec/data
-      # BURADAKİ EXTRA VOLUME'LERİ SİLDİK (Filebeat/RootCA yok)
 
   # 8. Wazuh Dashboard
   wazuh.dashboard:
@@ -113,7 +112,7 @@ services:
       - INDEXER_URL=https://demo.indexer:9200
       - INDEXER_USERNAME=admin
       - INDEXER_PASSWORD=admin
-      - INDEXER_SSL_VERIFICATION_MODE=none  # <--- KRİTİK AYAR: none
+      - INDEXER_SSL_VERIFICATION_MODE=none
       - WAZUH_API_URL=https://wazuh.manager:55000
       - WAZUH_API_USERNAME=wazuh-wui
       - WAZUH_API_PASSWORD=wazuh-wui
@@ -124,9 +123,5 @@ services:
 
 volumes:
   postgres_data:
-  wazuh-indexer-data: # EKLE
-  wazuh-manager-data: # EKLE
-
-
-
-
+  wazuh-indexer-data:
+  wazuh-manager-data:
