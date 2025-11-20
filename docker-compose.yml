@@ -1,0 +1,132 @@
+version: '3.8'
+
+services:
+  # 1. Yönetim Merkezi (FastAPI)
+  backend:
+    build: ./backend
+    container_name: blueunix_backend
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./backend:/code
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - db
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  # 2. Asenkron İşçiler (Celery Worker)
+  worker:
+    build: ./backend
+    container_name: blueunix_worker
+    # Root uyarısını görmezden gel, altyapı kurmak için yetki lazım
+    command: celery -A app.workers.celery_app worker --loglevel=info
+    volumes:
+      - ./backend:/code
+      - ./infrastructure:/infrastructure
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - backend
+      - redis
+    environment:
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+  # 3. Mesaj Kuyruğu (Redis)
+  redis:
+    image: redis:alpine
+    container_name: blueunix_redis
+    ports:
+      - "6379:6379"
+
+  # 4. Veritabanı (PostgreSQL)
+  db:
+    image: postgres:15-alpine
+    container_name: blueunix_db
+    environment:
+      POSTGRES_USER: blueunix
+      POSTGRES_PASSWORD: securepassword
+      POSTGRES_DB: blueunix_core
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  # 5. Yönetim Paneli (React) - BURASI DÜZELTİLDİ (Sola kaydırıldı)
+  frontend:
+    build: ./frontend
+    container_name: blueunix_frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+  # 6. Wazuh Indexer (İsim Değişti)
+# 6. Wazuh Indexer
+  demo.indexer:
+    image: wazuh/wazuh-indexer:4.7.2
+    container_name: demo.indexer
+    ports:
+      - "9200:9200"
+    environment:
+      - "OPENSEARCH_JAVA_OPTS=-Xms512m -Xmx512m"
+      - "discovery.type=single-node"
+    volumes:
+      - wazuh-indexer-data:/var/lib/wazuh-indexer
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  # 7. Wazuh Manager
+  wazuh.manager:
+    image: wazuh/wazuh-manager:4.7.2
+    container_name: wazuh.manager
+    ports:
+      - "1514:1514"
+      - "55000:55000"
+    environment:
+      - INDEXER_URL=https://demo.indexer:9200
+      - INDEXER_USERNAME=admin
+      - INDEXER_PASSWORD=admin
+      - INDEXER_SSL_VERIFICATION_MODE=none  # <--- KRİTİK AYAR: none
+    depends_on:
+      - demo.indexer
+    volumes:
+      - wazuh-manager-data:/var/ossec/data
+      # BURADAKİ EXTRA VOLUME'LERİ SİLDİK (Filebeat/RootCA yok)
+
+  # 8. Wazuh Dashboard
+  wazuh.dashboard:
+    image: wazuh/wazuh-dashboard:4.7.2
+    container_name: wazuh.dashboard
+    ports:
+      - "443:5601"
+    environment:
+      - INDEXER_URL=https://demo.indexer:9200
+      - INDEXER_USERNAME=admin
+      - INDEXER_PASSWORD=admin
+      - INDEXER_SSL_VERIFICATION_MODE=none  # <--- KRİTİK AYAR: none
+      - WAZUH_API_URL=https://wazuh.manager:55000
+      - WAZUH_API_USERNAME=wazuh-wui
+      - WAZUH_API_PASSWORD=wazuh-wui
+      - WAZUH_API_SSL_VERIFICATION_MODE=none
+    depends_on:
+      - demo.indexer
+      - wazuh.manager
+
+volumes:
+  postgres_data:
+  wazuh-indexer-data: # EKLE
+  wazuh-manager-data: # EKLE
+
+
+
+

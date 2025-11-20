@@ -1,0 +1,15 @@
+ERROR! We were unable to read either as JSON nor YAML, these are the errors we got from each:
+JSON: Expecting value: line 1 column 1 (char 0)
+
+Syntax Error while loading YAML.
+  mapping values are not allowed in this context. mapping values are not allowed in this context
+  in "<unicode string>", line 6, column 30
+
+The error appears to be in '/infrastructure/ansible/playbooks/setup_web.yml': line 6, column 30, but may
+be elsewhere in the file depending on the exact syntax problem.
+
+The offending line appears to be:
+
+    - name: Nginx varsayılan sayfasını degistir (Raw Modulu ile)
+      raw: echo "<h1>BlueUnix: Operasyon Basarili!</h1><p>Bu sayfa Ansible ile, Python olmadan degistirildi.</p>" > /usr/share/nginx/html/index.html
+                             ^ here

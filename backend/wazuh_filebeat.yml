@@ -1,0 +1,5 @@
+output.elasticsearch:
+  hosts: ["https://demo.indexer:9200"]
+  username: "admin"
+  password: "admin"
+  ssl.verification_mode: none # <--- İŞTE SİHİRLİ AYAR

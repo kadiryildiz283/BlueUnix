@@ -1,0 +1,28 @@
+
+PLAY [Endpoint Guvenlik Kurulumu (ClamAV)] *************************************
+
+TASK [Gathering Facts] *********************************************************
+ok: [blueunix_target_server]
+
+TASK [Paket listesini guncelle (apt-get update)] *******************************
+ok: [blueunix_target_server]
+
+TASK [ClamAV Antivirus paketini yukle] *****************************************
+changed: [blueunix_target_server]
+
+TASK [ClamAV Daemon paketini yukle] ********************************************
+changed: [blueunix_target_server]
+
+TASK [Virus veritabanini guncelle (freshclam)] *********************************
+changed: [blueunix_target_server]
+
+TASK [Kurulumu dogrula (Versiyon kontrolu)] ************************************
+changed: [blueunix_target_server]
+
+TASK [Versiyon bilgisini yazdir] ***********************************************
+ok: [blueunix_target_server] => {
+    "msg": "Kurulum Basarili! Yuklenen Versiyon: ClamAV 1.0.9/27825/Wed Nov 19 09:10:02 2025"
+}
+
+PLAY RECAP *********************************************************************
+blueunix_target_server     : ok=7    changed=4    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   

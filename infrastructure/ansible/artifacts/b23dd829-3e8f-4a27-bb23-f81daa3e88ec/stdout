@@ -1,0 +1,8 @@
+
+PLAY [Web Sunucusu Konfigürasyonu] *********************************************
+
+TASK [Nginx varsayılan sayfasını degistir (Raw Modulu ile)] ********************
+changed: [blueunix_wazuh_simulation]
+
+PLAY RECAP *********************************************************************
+blueunix_wazuh_simulation  : ok=1    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0   

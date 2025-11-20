@@ -1,0 +1,31 @@
+- name: Endpoint Guvenlik Kurulumu (ClamAV)
+  hosts: blueunix_target_server
+  gather_facts: yes  # Artık Python olduğu için fact toplayabiliriz
+  
+  tasks:
+    - name: Paket listesini guncelle (apt-get update)
+      apt:
+        update_cache: yes
+      
+    - name: ClamAV Antivirus paketini yukle
+      apt:
+        name: clamav
+        state: present
+
+    - name: ClamAV Daemon paketini yukle
+      apt:
+        name: clamav-daemon
+        state: present
+
+    - name: Virus veritabanini guncelle (freshclam)
+      # Konteyner ortamında servis başlatmadan sadece veritabanını çekiyoruz
+      command: freshclam
+      ignore_errors: yes # İlk kurulumda bazen lock hatası verebilir, geçelim
+      
+    - name: Kurulumu dogrula (Versiyon kontrolu)
+      command: clamscan --version
+      register: clamav_version
+
+    - name: Versiyon bilgisini yazdir
+      debug:
+        msg: "Kurulum Basarili! Yuklenen Versiyon: {{ clamav_version.stdout }}"

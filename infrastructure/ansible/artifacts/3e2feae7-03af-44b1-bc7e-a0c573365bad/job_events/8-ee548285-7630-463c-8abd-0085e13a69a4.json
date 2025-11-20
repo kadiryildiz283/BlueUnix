@@ -1,0 +1,1 @@
+{"event": "verbose", "uuid": "ee548285-7630-463c-8abd-0085e13a69a4", "counter": 8, "stdout": "The error appears to be in '/infrastructure/ansible/playbooks/setup_web.yml': line 6, column 30, but may", "start_line": 7, "end_line": 8, "runner_ident": "3e2feae7-03af-44b1-bc7e-a0c573365bad", "created": "2025-11-20T07:39:00.221603+00:00"}

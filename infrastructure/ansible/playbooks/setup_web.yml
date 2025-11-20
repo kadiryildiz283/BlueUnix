@@ -1,0 +1,7 @@
+- name: Web Sunucusu Konfigürasyonu
+  hosts: all
+  gather_facts: no
+  tasks:
+    - name: Nginx varsayılan sayfasını degistir (Raw Modulu ile)
+      # DİKKAT: Tüm komutu tek tırnak içine aldık
+      raw: 'echo "<h1>BlueUnix: Operasyon Basarili!</h1><p>Bu sayfa Ansible ile, Python olmadan degistirildi.</p>" > /usr/share/nginx/html/index.html'
