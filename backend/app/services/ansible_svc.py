@@ -6,7 +6,7 @@ import os
 # Ansible dosyalarının Docker içindeki yolları
 ANSIBLE_DIR = "/infrastructure/ansible"
 INVENTORY_PATH = os.path.join(ANSIBLE_DIR, "inventory/hosts.yml")
-PLAYBOOK_PATH = "setup_security.yml" # <--- GÜNCELLENDİ (Eskisi setup_web.yml idi)
+PLAYBOOK_PATH = "deploy_agent.yml" # <--- Ajan kurulum playbook'u
 
 @celery_app.task(name="run_ansible_playbook")
 def task_run_ansible_playbook(playbook_name=PLAYBOOK_PATH):
@@ -15,11 +15,18 @@ def task_run_ansible_playbook(playbook_name=PLAYBOOK_PATH):
     """
     print(f"--- ANSIBLE: {playbook_name} Çalıştırılıyor ---")
     
+    # --- EKSİK OLAN SATIR BUYDU ---
+    # Rollerin bulunduğu klasörün tam yolunu belirliyoruz
+    roles_path = os.path.join(ANSIBLE_DIR, 'roles') 
+    # ------------------------------
+
     # Ansible Runner'ı çalıştır
     r = ansible_runner.run(
         private_data_dir=ANSIBLE_DIR,
         playbook=os.path.join("playbooks", playbook_name),
         inventory=INVENTORY_PATH,
+        # Rollerin yolunu environment variable olarak veriyoruz
+        envvars={'ANSIBLE_ROLES_PATH': roles_path}, 
         quiet=False  # Logları görmek istiyoruz
     )
     

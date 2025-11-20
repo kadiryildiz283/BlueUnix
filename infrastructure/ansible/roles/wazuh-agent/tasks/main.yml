@@ -1,0 +1,46 @@
+---
+- name: Gerekli araclarin yuklenmesi (curl, gnupg)
+  apt:
+    name: 
+      - curl
+      - gnupg
+      - apt-transport-https
+      - lsb-release
+    state: present
+    update_cache: yes
+
+- name: Wazuh GPG anahtarinin eklenmesi
+  shell: |
+    curl -s https://packages.wazuh.com/key/GPG-KEY-WAZUH | gpg --no-default-keyring --keyring gnupg-ring:/usr/share/keyrings/wazuh.gpg --import && chmod 644 /usr/share/keyrings/wazuh.gpg
+
+- name: Wazuh Reposunun eklenmesi
+  shell: |
+    echo "deb [signed-by=/usr/share/keyrings/wazuh.gpg] https://packages.wazuh.com/4.x/apt/ stable main" | tee /etc/apt/sources.list.d/wazuh.list
+
+- name: Paket listesini guncelle
+  apt:
+    update_cache: yes
+
+# --- DÜZELTİLEN KISIM BURASI ---
+- name: Wazuh Agent Kurulumu
+  apt:
+    name: wazuh-agent
+    state: present
+  environment:  # <--- 'apt' ile aynı hizaya çektik ve ismini 'environment' yaptık
+    WAZUH_MANAGER: "wazuh.manager"
+    WAZUH_AGENT_NAME: "BlueUnix-Server-01"
+# -------------------------------
+
+- name: Linux Agent Ayarlarini Duzenle (Manager IP'sini sabitle)
+  lineinfile:
+    path: /var/ossec/etc/ossec.conf
+    regexp: '<address>MANAGER_IP</address>'
+    line: '      <address>wazuh.manager</address>'
+
+- name: Wazuh Agent'i Baslat
+  command: /var/ossec/bin/wazuh-control start
+  register: agent_start
+
+- name: Baslatma Durumunu Yazdir
+  debug:
+    msg: "{{ agent_start.stdout }}"

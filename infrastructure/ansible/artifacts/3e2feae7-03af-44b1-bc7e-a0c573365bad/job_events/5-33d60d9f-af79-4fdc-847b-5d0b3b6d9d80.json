@@ -1,1 +1,0 @@
-{"event": "verbose", "uuid": "33d60d9f-af79-4fdc-847b-5d0b3b6d9d80", "counter": 5, "stdout": "  mapping values are not allowed in this context. mapping values are not allowed in this context", "start_line": 4, "end_line": 5, "runner_ident": "3e2feae7-03af-44b1-bc7e-a0c573365bad", "created": "2025-11-20T07:39:00.221064+00:00"}

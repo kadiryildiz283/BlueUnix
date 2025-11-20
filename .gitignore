@@ -1,0 +1,36 @@
+# --- Genel Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
+
+# --- Terraform (ÇOK ÖNEMLİ) ---
+# State dosyaları şifreleri içerir, ASLA yükleme
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+crash.log
+override.tf
+override.tf.json
+
+# --- Ansible (ÇOK ÖNEMLİ) ---
+# Loglar ve artifactler repoyu kirletir
+*.retry
+*.log
+infrastructure/ansible/artifacts/
+infrastructure/ansible/env/
+infrastructure/ansible/fact_cache/
+
+# --- IDE ve Editörler ---
+.vscode/
+.idea/
+*.swp
+
+# --- İşletim Sistemi ---
+.DS_Store
+Thumbs.db
+
+# --- Docker ---
+docker-data/

@@ -1,0 +1,5 @@
+- name: Saha Operasyonu - Wazuh Ajan Dagitiimi
+  hosts: blueunix_target_server
+  gather_facts: yes
+  roles:
+    - wazuh-agent

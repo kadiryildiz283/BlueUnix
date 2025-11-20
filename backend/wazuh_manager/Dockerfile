@@ -1,9 +1,9 @@
 FROM wazuh/wazuh-manager:4.7.2
 
-# Filebeat ayarını düzelt: SSL doğrulamasını kapat
-RUN echo "output.elasticsearch.ssl.verification_mode: none" >> /etc/filebeat/filebeat.yml
+# Konfig dosyasını imajın içine kopyala
+COPY filebeat.yml /etc/filebeat/filebeat.yml
 
-# İzinleri düzelt (Filebeat root yetkisi ister)
+# İzinleri "root" ve "sadece okunabilir" yap (Filebeat bunu şart koşar)
 USER root
-RUN chmod 600 /etc/filebeat/filebeat.yml
-RUN chown root:root /etc/filebeat/filebeat.yml
+RUN chmod 644 /etc/filebeat/filebeat.yml && \
+    chown root:root /etc/filebeat/filebeat.yml

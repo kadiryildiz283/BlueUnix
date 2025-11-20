@@ -66,7 +66,7 @@ services:
     depends_on:
       - backend
 
-  # 6. Wazuh Indexer (Sertifika uyumu için ismi demo.indexer)
+  # 6. Wazuh Indexer (Sertifika için demo.indexer + DNS için wazuh.indexer takma adı)
   demo.indexer:
     image: wazuh/wazuh-indexer:4.7.2
     container_name: demo.indexer
@@ -84,10 +84,14 @@ services:
       nofile:
         soft: 65536
         hard: 65536
+    networks:
+      default:
+        aliases:
+          - wazuh.indexer  # <--- İŞTE SİHİRLİ ÇÖZÜM (DNS Hilesi)
 
-  # 7. Wazuh Manager (Özel Build - SSL Zorla Kapatıldı)
+  # 7. Wazuh Manager
   wazuh.manager:
-    build: ./backend/wazuh_manager  # <--- ÖNEMLİ: Hazır imaj yerine kendi build'imiz
+    image: wazuh/wazuh-manager:4.7.2
     container_name: wazuh.manager
     ports:
       - "1514:1514"
@@ -96,7 +100,7 @@ services:
       - INDEXER_URL=https://demo.indexer:9200
       - INDEXER_USERNAME=admin
       - INDEXER_PASSWORD=admin
-      - INDEXER_SSL_VERIFICATION_MODE=none
+      - INDEXER_SSL_VERIFICATION_MODE=none # Sertifikayı dert etme
     depends_on:
       - demo.indexer
     volumes:
@@ -110,9 +114,10 @@ services:
       - "443:5601"
     environment:
       - INDEXER_URL=https://demo.indexer:9200
+      # SSL doğrulamasını kapatıyoruz çünkü takma adla bağlanabilir
+      - INDEXER_SSL_VERIFICATION_MODE=none 
       - INDEXER_USERNAME=admin
       - INDEXER_PASSWORD=admin
-      - INDEXER_SSL_VERIFICATION_MODE=none
       - WAZUH_API_URL=https://wazuh.manager:55000
       - WAZUH_API_USERNAME=wazuh-wui
       - WAZUH_API_PASSWORD=wazuh-wui
